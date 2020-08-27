@@ -11,10 +11,15 @@ import cv2
 import json
 import pandas as pd
 from skimage.transform import resize
+import numpy as np
 
-file_list = glob.glob(r'.\assets\*')
-image = plt.imread(file_list[0])
-image = resize(image, (256, 256, 3)) # resize it
+file_list = glob.glob(r'./assets/*')
+image_library = np.zeros((len(file_list), 256, 256, 3))
+
+for i in range(len(file_list)):
+    image = plt.imread(file_list[i])
+    image = resize(image, (256, 256, 3)) # resize it
+    image_library[i] = image
 # Getting the kernel to be used in Top-Hat
 filterSize = 400
 filterSize =(filterSize, filterSize) 
@@ -55,8 +60,7 @@ app.layout = html.Div([
 @app.callback(Output('image', 'figure'),
               [Input('my-slider', 'value')])
 def update_figure(image_choice):
-    image = plt.imread(file_list[image_choice])
-    image = resize(image, (256, 256, 3))
+    image = image_library[image_choice]
     fig = px.imshow(image)
     fig.update_layout(clickmode='event+select')
     return fig
