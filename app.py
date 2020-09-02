@@ -17,8 +17,8 @@ top_list = glob.glob(r'./assets/top*')
 dsm_list = glob.glob(r'./assets/dsm*')
 image_library = np.zeros((len(top_list), 256, 256, 3))
 
-for i in range(len(file_list)):
-    image = plt.imread(file_list[i])
+for i in range(len(top_list)):
+    image = plt.imread(top_list[i])
     image = resize(image, (256, 256, 3)) # resize it
     image_library[i] = image
 # Getting the kernel to be used in Top-Hat
@@ -48,7 +48,7 @@ app.layout = html.Div([
         id='image'),
     dcc.Slider(
         id='my-slider',
-        min=0, max=len(file_list)-1, step=1, value=int(len(file_list)/2),
+        min=0, max=len(top_list)-1, step=1, value=int(len(top_list)/2),
         updatemode='drag'),
     html.Div(id='slider-output-container'),
     dcc.Graph(
