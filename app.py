@@ -39,62 +39,65 @@ for i in range(len(top_list)):
     image = resize(image, (256, 256, 3)) # resize it
     image_library[i] = image
 
-flattened_library = []
-for i in range(len(top_list)):
-    flattened_library.append(image_library[i].flatten())
+#flattened_library = []
+#for i in range(len(top_list)):
+#    flattened_library.append(image_library[i].flatten())
 
-df = pd.DataFrame(flattened_library).transpose()
-
-#lists = image_library.tolist()
-
-#list_string = json.dumps(lists)
-
-#dataset = json.loads(list_string)
-#image = dataset[slider_value]
-#fig = px.imshow(image)
-#fig.update_layout(clickmode='event+select')
+#df = pd.DataFrame(flattened_library).transpose()
 
 app.layout = html.Div([
-    dcc.Graph(
-        id='image'),
-    dcc.Slider(
-        id='my-slider',
-        min=0, max=len(top_list)-1, step=1, value=int(len(top_list)/2),
-        updatemode='drag'),
-    html.Div(id='slider-output-container'),
-    dcc.Graph(
-        id='image-filtered'),
-    dcc.Slider(id='filter-slider',
-        min=1, max=50, step=1, value=5, updatemode='drag'),
+        html.Div([
+            html.Div([
+                dcc.Graph(
+                    id='image'),
+                dcc.Slider(
+                id='my-slider',
+                min=0, max=len(top_list)-1, step=1, value=int(len(top_list)/2),
+                updatemode='mouseup'),
+                ]),
+            html.Div([
+                dcc.Graph(
+                    id='image-filtered'),
+                dcc.Slider(id='filter-slider',
+                    min=1, max=50, step=1, value=5, updatemode='mouseup'),
+                ])
 #    html.Div(children=list_string, id='stored-data', style={'display':'none'})
-])
+            ], style={'columnCount':2})
+        ])
 
 
 @app.callback(Output('image', 'figure'),
               [Input('my-slider', 'value')])
 def update_figure(slider_value):
-    dff = df[slider_value]
-    image = dff.values.reshape(256,256,3)
-    fig = px.imshow(image)
-    fig.update_layout(clickmode='event+select')
+    #dff = df[slider_value]
+    #image = dff.values.reshape(256,256,3)
+    displayed_image = image_library[slider_value]
+    fig = px.imshow(displayed_image)
+    fig.update_layout(clickmode='event+select', coloraxis_showscale=False)
+    fig.update_layout(coloraxis_showscale=False)
+    fig.update_xaxes(showticklabels=False)
+    fig.update_yaxes(showticklabels=False)
     return fig
 
 @app.callback(Output('image-filtered', 'figure'),
-        [Input('filter-slider', 'value'), Input('my-slider', 'value')])
-def update_filter(filter_choice, image_choice):
-    dff = df[image_choice]
-    image = dff.values.reshape(256,256,3)
+        [Input('image', 'figure'), Input('my-slider', 'value'), Input('filter-slider', 'value')])
+def update_filter(original_image, slider_value, filter_choice):
+    #dff = df[slider_value]
+    #image = dff.values.reshape(256,256,3)
+    displayed_image = image_library[slider_value]
     filterSize = filter_choice
     filterSize = (filterSize, filterSize)
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT,  
                                    filterSize) 
   
     # Applying the Top-Hat operation 
-    tophat_img = cv2.morphologyEx(np.float32(image),  
+    tophat_img = cv2.morphologyEx(np.float32(displayed_image),  
                               cv2.MORPH_TOPHAT, 
                               kernel) 
     fig = px.imshow(tophat_img)
-    fig.update_layout(clickmode='event+select')
+    fig.update_layout(clickmode='event+select', coloraxis_showscale=False)
+    fig.update_xaxes(showticklabels=False)
+    fig.update_yaxes(showticklabels=False)
     return fig
 
 
