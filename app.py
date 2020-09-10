@@ -66,7 +66,10 @@ app.layout = html.Div([
 #    html.Div(children=list_string, id='stored-data', style={'display':'none'})
             ], style={'columnCount':2}),
         html.Div([
-            DashCanvas(id='canvas-color'),
+            html.Div([
+                DashCanvas(id='canvas-color')], style={'display':'flex','align-items': 'center', 'justify-content': 'center'}),
+            html.Div([
+                html.H6(children=['Brush width'])],style={'display':'flex','align-items': 'center', 'justify-content': 'center'}),
             dcc.Slider(
                 id='bg-width-slider',
                 min=2,
@@ -79,7 +82,7 @@ app.layout = html.Div([
                 label='Brush color',
                 value=dict(hex='#119DFF'))
             ])
-        ])
+        ]) 
 
 
 @app.callback(Output('image', 'figure'),
