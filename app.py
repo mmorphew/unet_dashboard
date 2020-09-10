@@ -14,7 +14,9 @@ from skimage.transform import resize
 import numpy as np
 import datetime as dt
 from flask_caching import Cache
-
+from dash_canvas import DashCanvas
+import dash_daq as daq
+from dash_canvas.utils import array_to_data_url
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -62,7 +64,21 @@ app.layout = html.Div([
                     min=1, max=50, step=1, value=5, updatemode='mouseup'),
                 ])
 #    html.Div(children=list_string, id='stored-data', style={'display':'none'})
-            ], style={'columnCount':2})
+            ], style={'columnCount':2}),
+        html.Div([
+            DashCanvas(id='canvas-color'),
+            dcc.Slider(
+                id='bg-width-slider',
+                min=2,
+                max=40,
+                step=1,
+                value=5
+            ),
+            daq.ColorPicker(
+                id='color-picker',
+                label='Brush color',
+                value=dict(hex='#119DFF'))
+            ])
         ])
 
 
@@ -100,6 +116,25 @@ def update_filter(original_image, slider_value, filter_choice):
     fig.update_yaxes(showticklabels=False)
     return fig
 
+@app.callback(Output('canvas-color', 'image_content'),
+        [Input('my-slider', 'value'), Input('image', 'figure')])
+def update_background_image(slider_value, image_figure):
+    displayed_image = image_library[slider_value]
+    return array_to_data_url((displayed_image*255).astype(np.uint8))
+
+@app.callback(Output('canvas-color', 'lineColor'),
+            [Input('color-picker', 'value')])
+def update_canvas_linewidth(value):
+    if isinstance(value, dict):
+        return value['hex']
+    else:
+        return value
+
+
+@app.callback(Output('canvas-color', 'lineWidth'),
+            [Input('bg-width-slider', 'value')])
+def update_canvas_linewidth(value):
+    return value
 
 if __name__ == '__main__':
     app.run_server(debug=True)
